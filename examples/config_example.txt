@@ -1,0 +1,22 @@
+Daemon Configuration:
+
+Alarm .............................................. Off
+Hibernate .......................................... Off
+Cloud .............................................. Off
+
+Action for Power Failure:
+
+        Delay time since Power failure ............. 60 sec.
+        Run script command ......................... On
+        Path of script command ..................... /etc/pwrstatd-powerfail.sh
+        Duration of command running ................ 0 sec.
+        Enable shutdown system ..................... On
+
+Action for Battery Low:
+
+        Remaining runtime threshold ................ 300 sec.
+        Battery capacity threshold ................. 35 %.
+        Run script command ......................... On
+        Path of command ............................ /etc/pwrstatd-lowbatt.sh
+        Duration of command running ................ 0 sec.
+        Enable shutdown system ..................... On

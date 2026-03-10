@@ -1,6 +1,7 @@
 package src
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -63,63 +64,59 @@ func valAsString(s string, delimiter string) string {
 	return strings.TrimSpace(strings.Split(s, delimiter)[1])
 }
 
-func parseStatusStdOut(input string) (StatusCommand, error) {
+func ParseStatusStdOut(input string) (StatusCommand, error) {
 	const _delimiter = ". "
 	const _redelimiter = "_$"
 
 	var properties = Properties{}
 	var currentStatus = CurrentStatus{}
 
+	// create unique key value delimiter
 	input = strings.Replace(input, _delimiter, _redelimiter, -1)
+	// clear all the annoying "..."
+	input = strings.Replace(input, ".", "", -1)
 
+	// TODO: Fix the absolute hell out of this <- This is why we run code before doing the big logic block
 	for _, line := range strings.Split(input, "\n") {
 		// skip line if not content relevant
 		if !strings.Contains(line, _redelimiter) {
 			continue
 		}
-		switch strings.ToLower(line) {
+		key := strings.TrimSpace(strings.Split(line, _redelimiter)[0])
+		value := strings.TrimSpace(strings.Split(line, _redelimiter)[1])
+		fmt.Println(key, "->", value)
+
+		switch strings.ToLower(key) {
 		case "model name":
-			properties.ModelName = valAsString(line, _redelimiter)
+			properties.ModelName = value
 		case "firmware number":
-			properties.Firmware = valAsString(line, _redelimiter)
+			properties.Firmware = value
 		case "rating voltage":
-			properties.RatingVoltage = splitAssignUnitValue(
-				valAsString(line, _redelimiter),
-			)
+			properties.RatingVoltage = splitAssignUnitValue(value)
 		case "rating power":
 			// reduced to "900 Watt(1500 VA)
-			v1, v2 := splitCompoundUnitValue(
-				valAsString(line, _redelimiter),
-			)
+			v1, v2 := splitCompoundUnitValue(value)
 			properties.RatingPower = make([]UnitValueInt, 2)
 			properties.RatingPower[0] = splitAssignUnitValue(v1)
 			properties.RatingPower[1] = splitAssignUnitValue(v2)
 		case "state":
-			currentStatus.State = valAsString(line, _redelimiter)
+			currentStatus.State = value
 		case "power supply by":
-			currentStatus.PowerSuppliedBy = valAsString(line, _redelimiter)
+			currentStatus.PowerSuppliedBy = value
 		case "utility voltage":
-			currentStatus.UtilityVoltage = splitAssignUnitValue(
-				valAsString(line, _redelimiter),
-			)
+			currentStatus.UtilityVoltage = splitAssignUnitValue(value)
 		case "output voltage":
-			currentStatus.OutputVoltage = splitAssignUnitValue(
-				valAsString(line, _redelimiter),
-			)
+			currentStatus.OutputVoltage = splitAssignUnitValue(value)
 		case "battery capacity":
-			currentStatus.BatteryCapacity = splitAssignUnitValue(
-				valAsString(line, _redelimiter),
-			)
+			currentStatus.BatteryCapacity = splitAssignUnitValue(value)
 		case "load":
 			// reduced to "252 Watt(28 %)"
-			v1, v2 := splitCompoundUnitValue(
-				valAsString(line, _redelimiter),
-			)
+			v1, v2 := splitCompoundUnitValue(value)
 			currentStatus.Load = make([]UnitValueInt, 2)
 			currentStatus.Load[0] = splitAssignUnitValue(v1)
 			currentStatus.Load[1] = splitAssignUnitValue(v2)
 		case "line interaction":
-			currentStatus.LineInteraction = valAsString(line, _redelimiter)
+			currentStatus.LineInteraction = value
 		case "test results":
 			const cursed = " at "
 			// kind of cursed but I do not know what
@@ -139,7 +136,7 @@ func parseStatusStdOut(input string) (StatusCommand, error) {
 				Time:   pTime,
 			}
 		case "last_power_event":
-			currentStatus.LastPowerEvent = valAsString(line, _redelimiter)
+			currentStatus.LastPowerEvent = value
 		}
 	}
 	return StatusCommand{

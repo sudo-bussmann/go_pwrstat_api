@@ -40,14 +40,14 @@ func splitAssignUnitValue(s string) UnitValueInt {
 		log.Printf("Failed to split assign unit value: %s", s)
 		return UnitValueInt{}
 	}
-	val, err := strconv.Atoi(kv[1])
+	kVal, err := strconv.Atoi(kv[0])
 	if err != nil {
 		log.Printf("Failed to parse assign unit value: %s", s)
 		return UnitValueInt{}
 	}
 	return UnitValueInt{
 		Unit:  kv[1],
-		Value: val,
+		Value: kVal,
 	}
 }
 
@@ -76,7 +76,6 @@ func ParseStatusStdOut(input string) (StatusCommand, error) {
 	// clear all the annoying "..."
 	input = strings.Replace(input, ".", "", -1)
 
-	// TODO: Fix the absolute hell out of this <- This is why we run code before doing the big logic block
 	for _, line := range strings.Split(input, "\n") {
 		// skip line if not content relevant
 		if !strings.Contains(line, _redelimiter) {
@@ -117,6 +116,8 @@ func ParseStatusStdOut(input string) (StatusCommand, error) {
 			currentStatus.Load[1] = splitAssignUnitValue(v2)
 		case "line interaction":
 			currentStatus.LineInteraction = value
+
+			// TODO: Do better man.
 		case "test results":
 			const cursed = " at "
 			// kind of cursed but I do not know what

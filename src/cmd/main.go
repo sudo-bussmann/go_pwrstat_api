@@ -23,5 +23,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(status)
+	fmt.Printf("status --> %+v\n", status)
 }

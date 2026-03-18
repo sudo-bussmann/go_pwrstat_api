@@ -1,5 +1,10 @@
 package src
 
+import (
+	"fmt"
+	"strings"
+)
+
 type DaemonConfig struct {
 	Alarm     string `json:"alarm"`
 	Hibernate string `json:"hibernate"`
@@ -29,10 +34,47 @@ type ConfigurationCLIResp struct {
 	BatteryLowAction
 }
 
-func NewConfigurationResp() *ConfigurationCLIResp {
-	return &ConfigurationCLIResp{
-		DaemonConfig:       DaemonConfig{},
-		PowerFailureAction: PowerFailureAction{},
-		BatteryLowAction:   BatteryLowAction{},
+func ParseConfigStdOut(input string) (ConfigurationCLIResp, error) {
+	const _delimiter = ". "
+	const _redelimiter = "_$"
+
+	var daemonConf DaemonConfig
+	var powerFailAction PowerFailureAction
+	var batteryLowAction BatteryLowAction
+
+	// create unique key value delimiter
+	input = strings.Replace(input, _delimiter, _redelimiter, -1)
+
+	// tmp change of file extentions to guard next part breaking file exts
+	input = strings.Replace(input, ".sh", "_sh", -1)
+	// clear all the annoying "..."
+	input = strings.Replace(input, ".", "", -1)
+	// restore file extensions
+	input = strings.Replace(input, "_sh", ".sh", -1)
+
+	// kinda annoying, but it correctly assigns to the Action for Power Failure values
+	input = strings.Replace(input, "Path of script command", "aPath	of script command", 1)
+	input = strings.Replace(input, "Duration of command running", "aDuration of command running", 1)
+	input = strings.Replace(input, "Enable shutdown system", "aEnable shutdown system", 1)
+	for _, line := range strings.Split(input, "\n") {
+		// skip line if not content relevant
+		if !strings.Contains(line, _redelimiter) {
+			continue
+		}
+		key := strings.TrimSpace(strings.Split(line, _redelimiter)[0])
+		value := strings.TrimSpace(strings.Split(line, _redelimiter)[1])
+		fmt.Println(key, "->", value)
+		switch strings.ToLower(key) {
+		case "alarm":
+			daemonConf.Alarm = value
+		case "hibernate":
+			daemonConf.Hibernate = value
+		case "cloud":
+			daemonConf.Cloud = value
+			// finish implementation
+		default:
+
+		}
 	}
+	return ConfigurationCLIResp{daemonConf, powerFailAction, batteryLowAction}, nil
 }

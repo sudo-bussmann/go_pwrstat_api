@@ -15,12 +15,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	testFile := filepath.Join(wd, "examples", "status_example.txt")
+	testFile := filepath.Join(wd, "examples", "config_example.txt")
 	fileContent, err := os.ReadFile(testFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	status, err := src.ParseStatusStdOut(string(fileContent))
+	status, err := src.ParseConfigStdOut(string(fileContent))
 	if err != nil {
 		log.Fatal(err)
 	}

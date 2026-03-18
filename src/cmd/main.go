@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	src "go_pwrstat_api/src"
 	"log"
@@ -23,5 +24,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("status --> %+v\n", status)
+	out, err := json.MarshalIndent(status, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(out))
 }

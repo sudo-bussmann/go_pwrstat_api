@@ -29,7 +29,7 @@ type CurrentStatus struct {
 	RemainingRuntime UnitValueInt   `json:"remaining_runtime"`
 	Load             []UnitValueInt `json:"load"`
 	LineInteraction  string         `json:"line_interaction"`
-	TestResults      TestResult     `json:"test_results"`
+	TestResults      TestResult     `json:"test_result"`
 	LastPowerEvent   string         `json:"last_power_event"`
 }
 
@@ -108,6 +108,8 @@ func ParseStatusStdOut(input string) (StatusCommand, error) {
 			currentStatus.OutputVoltage = splitAssignUnitValue(value)
 		case "battery capacity":
 			currentStatus.BatteryCapacity = splitAssignUnitValue(value)
+		case "remaining runtime":
+			currentStatus.RemainingRuntime = splitAssignUnitValue(value)
 		case "load":
 			// reduced to "252 Watt(28 %)"
 			v1, v2 := splitCompoundUnitValue(value)
@@ -116,19 +118,23 @@ func ParseStatusStdOut(input string) (StatusCommand, error) {
 			currentStatus.Load[1] = splitAssignUnitValue(v2)
 		case "line interaction":
 			currentStatus.LineInteraction = value
+		case "test result":
+			const passFlag = "Passed"
+			const spacer = " at "
 
-			// TODO: Do better man.
-		case "test results":
-			const cursed = " at "
-			// kind of cursed but I do not know what
-			if !strings.Contains(line, cursed) {
+			// this compiles
+			defDate, _ := time.Parse(time.RFC3339, "1900-01-01T00:00:00Z")
+
+			if !strings.Contains(line, passFlag) {
 				currentStatus.TestResults = TestResult{
 					Status: "NA",
-					Time:   time.Now(),
+					Time:   defDate,
 				}
+				continue
 			}
-			tLine := strings.Split(valAsString(line, _redelimiter), cursed)
-			pTime, err := time.Parse("2026/05/08 00:00:00", tLine[1])
+			tLine := strings.Split(valAsString(line, _redelimiter), spacer)
+			fmt.Println("LOOK HERE --> ", tLine)
+			pTime, err := time.Parse("2006/01/02 15:04:05", tLine[1])
 			if err != nil {
 				log.Printf("Failed to parse test results time: %s", tLine[1])
 			}

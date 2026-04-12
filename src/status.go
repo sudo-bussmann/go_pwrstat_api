@@ -3,7 +3,6 @@ package src
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -31,24 +30,6 @@ type CurrentStatus struct {
 	LineInteraction  string         `json:"line_interaction"`
 	TestResults      TestResult     `json:"test_result"`
 	LastPowerEvent   string         `json:"last_power_event"`
-}
-
-func splitAssignUnitValue(s string) UnitValueInt {
-	s = strings.TrimSpace(s)
-	kv := strings.Split(s, " ")
-	if len(kv) != 2 {
-		log.Printf("Failed to split assign unit value: %s", s)
-		return UnitValueInt{}
-	}
-	kVal, err := strconv.Atoi(kv[0])
-	if err != nil {
-		log.Printf("Failed to parse assign unit value: %s", s)
-		return UnitValueInt{}
-	}
-	return UnitValueInt{
-		Unit:  kv[1],
-		Value: kVal,
-	}
 }
 
 func splitCompoundUnitValue(s string) (string, string) {

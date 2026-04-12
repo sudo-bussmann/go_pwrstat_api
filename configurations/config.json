@@ -1,0 +1,15 @@
+{
+  "discord_webhook_url": "",
+  "slack_webhook_url": "",
+  "power_test": {
+    "cron": "",
+    "record_local": true,
+    "local_dir": "./logs",
+    "send_webhook": true
+  },
+  "shutdown_flow": {
+    "url": "",
+    "user": "",
+    "password": ""
+  }
+}
